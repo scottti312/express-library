@@ -3,11 +3,16 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const creds = require('./mongocreds');
+const mongoose = require('mongoose');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
+
+mongoose.set('strictQuery', false);
+const mongoDB = `mongodb+srv://${creds.user}:${creds.password}@cluster0.vgrxs84.mongodb.net/?retryWrites=true&w=majority`;
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
