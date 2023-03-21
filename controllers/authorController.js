@@ -1,4 +1,5 @@
 const Author = require('../models/author');
+const Book = require('../models/book');
 
 exports.author_list = async (req, res) => {
   try {
@@ -16,8 +17,19 @@ exports.author_list = async (req, res) => {
   }
 };
 
-exports.author_detail = (req, res) => {
-  res.send(`NOT IMPLEMENTED: Author detail: ${req.params.id}`);
+exports.author_detail = async (req, res) => {
+  try {
+    const author = await Author.findById(req.params.id).exec();
+    const author_books = await Book.find({author: req.params.id}, "title summary").exec();
+    res.render("author_detail", {
+      title: "Author Detail",
+      author: author,
+      author_books: author_books,
+    });
+
+  } catch (err) {
+    res.render("Error", {error: err});
+  }
 };
 
 // Display Author create form on GET.

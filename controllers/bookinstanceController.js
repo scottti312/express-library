@@ -6,20 +6,32 @@ exports.bookinstance_list = async (req, res) => {
     const list_bookinstances = await BookInstance.find()
       .populate("book")
       .exec();
-    
+
     res.render("bookinstance_list", {
       title: "Book Instance List",
       bookinstance_list: list_bookinstances,
     });
 
   } catch (err) {
-    res.render("error", { error: err })
+    res.render("error", { error: err });
   }
 };
 
 // Display detail page for a specific BookInstance.
-exports.bookinstance_detail = (req, res) => {
-  res.send(`NOT IMPLEMENTED: BookInstance detail: ${req.params.id}`);
+exports.bookinstance_detail = async (req, res) => {
+  try {
+    const bookinstance = await BookInstance.findById(req.params.id)
+      .populate("book")
+      .exec();
+
+
+    res.render("bookinstance_detail", {
+      title: `Copy: ${bookinstance.book.title}`,
+      bookinstance: bookinstance,
+    });
+  } catch (err) {
+    res.render("error", { error: err });
+  }
 };
 
 // Display BookInstance create form on GET.

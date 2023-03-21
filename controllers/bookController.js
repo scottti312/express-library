@@ -22,7 +22,7 @@ exports.index = async (req, res) => {
       },
     });
   } catch (err) {
-    res.render("error", {error: err});
+    res.render("error", { error: err });
   }
 };
 
@@ -33,19 +33,36 @@ exports.book_list = async (req, res, next) => {
       .sort({ title: 1 })
       .populate("author")
       .exec();
-      res.render(
-        "book_list",
-        { title: "Book List",
-          book_list: list_books
+    res.render(
+      "book_list",
+      {
+        title: "Book List",
+        book_list: list_books
       });
   } catch (err) {
-    res.render("error", {erorr: err})
+    res.render("error", { erorr: err })
   }
 };
 
 // Display detail page for a specific book.
-exports.book_detail = (req, res) => {
-  res.send(`NOT IMPLEMENTED: Book detail: ${req.params.id}`);
+exports.book_detail = async (req, res, next) => {
+  try {
+    const book = await Book.findById(req.params.id)
+      .populate("author")
+      .populate("genre")
+      .exec();
+    const book_instance = await BookInstance
+      .find({ book: req.params.id })
+      .exec();
+    res.render(
+      "book_detail", {
+        title: "Book Detail",
+        book: book,
+        book_instances: book_instance,
+      });
+  } catch (err) {
+    res.render("error", { error: err })
+  }
 };
 
 // Display book create form on GET.
