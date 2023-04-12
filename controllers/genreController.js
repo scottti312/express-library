@@ -81,7 +81,7 @@ exports.genre_create_post = [
           await genre.save();
           res.redirect(genre.url);
         }
-        }
+      }
       catch (err) {
         return next(err);
       }
