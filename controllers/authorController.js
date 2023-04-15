@@ -105,6 +105,7 @@ exports.author_create_post = [
 
 // Display Author delete form on GET.
 exports.author_delete_get = async (req, res, next) => {
+
   try {
     const author = await Author.findById(req.params.id).exec();
     const authors_books = await Book.find({ author: req.params.id }).exec();
