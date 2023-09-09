@@ -41,11 +41,6 @@ exports.genre_detail = async (req, res) => {
 // Display Genre create form on GET.
 exports.genre_create_get = (req, res) => {
   res.render("genre_form", { title: "Create Genre" });
-  res.render("genre_form", {
-    title: "Create Genre",
-    genre,
-    errors: errors.array(),
-  });
 };
 
 // Handle Genre create on POST.
@@ -65,7 +60,7 @@ exports.genre_create_post = [
       // There are errors. Render the form again with sanitized values/error messages.
       res.render("genre_form", {
         title: "Create Genre",
-        genre,
+        genre: genre,
         errors: errors.array(),
       });
       return;
