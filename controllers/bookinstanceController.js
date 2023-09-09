@@ -25,8 +25,6 @@ exports.bookinstance_detail = async (req, res) => {
     const bookinstance = await BookInstance.findById(req.params.id)
       .populate("book")
       .exec();
-
-
     res.render("bookinstance_detail", {
       title: `Copy: ${bookinstance.book.title}`,
       bookinstance: bookinstance,
@@ -91,7 +89,7 @@ exports.bookinstance_create_post = [
     }
     
     try {
-      bookinstance.save();
+      await bookinstance.save();
       res.redirect(bookinstance.url);
     } catch (err) {
       return next(err);
@@ -100,13 +98,37 @@ exports.bookinstance_create_post = [
 ]
 
 // Display BookInstance delete form on GET.
-exports.bookinstance_delete_get = (req, res) => {
-  res.send("NOT IMPLEMENTED: BookInstance delete GET");
+exports.bookinstance_delete_get = async (req, res) => {
+  try {
+    const bookinstance = await BookInstance.findById(req.params.id)
+    .populate("book")
+    .exec();
+    if (bookinstance == null) {
+      res.redirect("/catalog/bookinstance");
+    }
+    res.render("bookinstance_delete", {
+      title: "Delete Book Instance",
+      bookinstance: bookinstance,
+    });
+  }
+  catch (err) {
+    return next(err);
+  }
 };
 
 // Handle BookInstance delete on POST.
-exports.bookinstance_delete_post = (req, res) => {
-  res.send("NOT IMPLEMENTED: BookInstance delete POST");
+exports.bookinstance_delete_post = async (req, res) => {
+  try {
+    const bookinstance = await BookInstance.findById(req.params.id).exec();
+    if (bookinstance == null) {
+      res.redirect("/catalog/bookinstances");
+    }
+    await BookInstance.findByIdAndDelete(req.body.bookinstanceid).exec();
+    res.redirect("/catalog/bookinstances");
+  }
+  catch (err) {
+    return next(err);
+  }
 };
 
 // Display BookInstance update form on GET.
