@@ -9,11 +9,24 @@ const mongoose = require('mongoose');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 const catalogRouter = require('./routes/catalog');
+const compression = require("compression");
+const helmet = require("helmet");
 
-var app = express();
+const app = express();
+
+const RateLimit = require("express-rate-limit");
+const limiter = RateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 100,
+});
+
+app.use(limiter);
 
 mongoose.set('strictQuery', false);
-const mongoDB = `mongodb+srv://${creds.user}:${creds.password}@cluster0.vgrxs84.mongodb.net/?retryWrites=true&w=majority`;
+const dev_db_url = `mongodb+srv://${creds.user}:${creds.password}@cluster0.vgrxs84.mongodb.net/?retryWrites=true&w=majority`;
+
+const mongoDB = process.env.MONGODB_URI || dev_db_url;
+
 
 main().catch(err => console.log(err));
 async function main() {
@@ -23,11 +36,18 @@ async function main() {
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
-
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      "script-src": ["'self'", "code.jquery.com", "cdn.jsdelivr.net"],
+    },
+  }),
+);
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(compression());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
