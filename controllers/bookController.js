@@ -3,6 +3,7 @@ const Author = require("../models/author");
 const Genre = require("../models/genre");
 const BookInstance = require("../models/bookinstance");
 const { body, validationResult } = require("express-validator");
+const author = require("../models/author");
 
 exports.index = async (req, res) => {
   try {
@@ -92,17 +93,17 @@ exports.book_create_post = [
   },
 
   body("title", "Title must not be empty.")
-  .trim()
-  .isLength({ min: 1 })
-  .escape(),
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
   body("author", "Author must not be empty.")
-  .trim()
-  .isLength({ min: 1 })
-  .escape(),
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
   body("summary", "Summary must not be empty.")
-  .trim()
-  .isLength({ min: 1 })
-  .escape(),
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
   body("isbn", "ISBN must not be empty").trim().isLength({ min: 1 }).escape(),
   body("genre.*").escape(),
 
@@ -119,8 +120,8 @@ exports.book_create_post = [
     
     if (!errors.isEmpty()) {
       try {
-        const authors = await Author.find();
-        const genres = await Genre.find();
+        const authors = await Author.find().exec();
+        const genres = await Genre.find().exec();
         for (const genre of genres) {
           if (book.genre.includes(genre._id)) {
             genre.checked = "true";
@@ -137,20 +138,53 @@ exports.book_create_post = [
         next(err);
       }
       return;
+    } else  {
+      await book.save();
+      res.redirect(book.url);
     }
-    book.save();
-    res.redirect(book.url);
   },
 ];
 
 // Display book delete form on GET.
-exports.book_delete_get = (req, res) => {
-  res.send("NOT IMPLEMENTED: Book delete GET");
+exports.book_delete_get = async (req, res, next) => {
+  try {
+    const book = await Book.findById(req.params.id)
+    .populate("author")
+    .exec();  
+    const book_instances = await BookInstance.find({ book: req.params.id }).exec();
+    if (book == null) {
+      res.redirect("/catalog/books");
+    }
+    res.render("book_delete", {
+      title: "Delete Book",
+      book: book,
+      book_instances: book_instances,
+    });
+  }
+  catch (err) {
+    return next(err);
+  }
 };
 
 // Handle book delete on POST.
-exports.book_delete_post = (req, res) => {
-  res.send("NOT IMPLEMENTED: Book delete POST");
+exports.book_delete_post = async (req, res) => {
+  try {
+    const book = await Book.findById(req.params.id).exec();
+    const book_instances = await BookInstance.find({ book: req.params.id }).exec();
+    if (book_instances.length > 0) {
+      res.render("book_delete", {
+        title: "Delete Author",
+        book: book,
+        book_instances: book_instances,
+      });
+      return;
+    }
+    Book.findByIdAndDelete(req.body.bookid).exec();
+    res.redirect("/catalog/books");
+  }
+  catch (err) {
+    return next(err);
+  }
 };
 
 // Display book update form on GET.
