@@ -3,7 +3,6 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-const creds = require('./mongocreds');
 const mongoose = require('mongoose');
 
 var indexRouter = require('./routes/index');
@@ -23,9 +22,8 @@ const limiter = RateLimit({
 app.use(limiter);
 
 mongoose.set('strictQuery', false);
-const dev_db_url = `mongodb+srv://${creds.user}:${creds.password}@cluster0.vgrxs84.mongodb.net/?retryWrites=true&w=majority`;
 
-const mongoDB = process.env.MONGODB_URI || dev_db_url;
+const mongoDB = process.env.MONGODB_URI;
 
 
 main().catch(err => console.log(err));
