@@ -83,7 +83,6 @@ exports.author_create_post = [
             { last_name: req.body.last_name }
           ]
          }).exec();
-          console.log(found_author);
         if (found_author) {
           res.redirect(found_author.url)
         } else {
@@ -105,7 +104,6 @@ exports.author_create_post = [
 
 // Display Author delete form on GET.
 exports.author_delete_get = async (req, res, next) => {
-
   try {
     const author = await Author.findById(req.params.id).exec();
     const authors_books = await Book.find({ author: req.params.id }).exec();
@@ -125,10 +123,10 @@ exports.author_delete_get = async (req, res, next) => {
 };
 
 // Handle Author delete on POST.
-exports.author_delete_post = (req, res, next) => {
+exports.author_delete_post = async (req, res, next) => {
   try {
-    const author = Author.findById(req.params.authorid).exec();
-    const authors_books = Book.find({ author: req.params.authorid }).exec();
+    const author = await Author.findById(req.params.authorid).exec();
+    const authors_books = await Book.find({ author: req.params.authorid }).exec();
     if (authors_books.length > 0) {
       res.render("author_delete", {
         title: "Delete Author",
@@ -137,7 +135,7 @@ exports.author_delete_post = (req, res, next) => {
       });
       return;
     }
-    Author.findByIdAndDelete(req.body.authorid).exec();
+    await Author.findByIdAndDelete(req.body.authorid).exec();
     res.redirect("/catalog/authors");
   }
    catch (err) {
