@@ -33,4 +33,19 @@ AuthorSchema.virtual("death_formatted").get(function () {
   return this.date_of_death ? DateTime.fromJSDate(this.date_of_death).toLocaleString(DateTime.DATE_MED) : "";
 });
 
+AuthorSchema.virtual("lifespan").get(function() {
+  if (!this.date_of_birth && this.date_of_death) {
+    return ("Unknown - " + DateTime.fromJSDate(this.date_of_death).toLocaleString(DateTime.DATE_MED));
+  }
+  else if (!this.date_of_death && this.date_of_birth) {
+    return (DateTime.fromJSDate(this.date_of_birth).toLocaleString(DateTime.DATE_MED) + " - Unknown");
+  }
+  else if (this.date_of_birth && this.date_of_death) {
+    return (DateTime.fromJSDate(this.date_of_birth).toLocaleString(DateTime.DATE_MED) + " - " + DateTime.fromJSDate(this.date_of_death).toLocaleString(DateTime.DATE_MED));
+  }
+  else {
+    return "Unknown - Unknown";
+  }
+});
+
 module.exports = mongoose.model('Author', AuthorSchema);
